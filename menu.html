@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premier Portal - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="menu-container">
+        <div class="welcome-header">
+            <h1 id="welcomeMessage">Welcome Back</h1>
+            <p>Exclusive Student Dashboard</p>
+        </div>
+        
+        <div class="menu-grid">
+            <a href="add-registration.html" class="menu-card">
+                <div class="card-icon">📝</div>
+                <h3>New Registration</h3>
+                <p>Register a new student with complete details</p>
+            </a>
+            
+            <a href="view-registrations.html" class="menu-card">
+                <div class="card-icon">📊</div>
+                <h3>View Records</h3>
+                <p>Access all registered students</p>
+            </a>
+        </div>
+        
+        <div class="logout-section">
+            <a href="#" id="logoutBtn" class="logout-btn">Sign Out</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth } from './firebase-config.js';
+        import { signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+            } else {
+                document.getElementById('welcomeMessage').textContent = 
+                    `Welcome, ${user.email.split('@')[0]}`;
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await signOut(auth);
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

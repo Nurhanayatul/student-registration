@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Registration</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <h2>New Registration</h2>
+            <a href="menu.html" class="back-btn">← Back</a>
+        </div>
+        
+        <div id="successMessage" class="success-message" style="display: none;"></div>
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+        
+        <form id="registrationForm" class="registration-form">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="nama" required placeholder="Enter student's full name">
+            </div>
+            
+            <div class="form-group">
+                <label>Matric Number</label>
+                <input type="text" id="no_matric" required placeholder="e.g., A12345">
+            </div>
+            
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="no_phone" required placeholder="e.g., 0123456789">
+            </div>
+            
+            <div class="form-group">
+                <label>Address</label>
+                <textarea id="address" required placeholder="Complete address" rows="4"></textarea>
+            </div>
+            
+            <button type="submit" id="submitBtn" class="submit-btn">Submit Registration</button>
+        </form>
+    </div>
+
+    <script type="module">
+        import { auth, db } from './firebase-config.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        
+        onAuthStateChanged(auth, (user) => {
+            if (!user) window.location.href = 'index.html';
+        });
+
+        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = 'Submitting...';
+            btn.disabled = true;
+            
+            try {
+                await addDoc(collection(db, "registrations"), {
+                    nama: document.getElementById('nama').value,
+                    no_matric: document.getElementById('no_matric').value,
+                    no_phone: document.getElementById('no_phone').value,
+                    address: document.getElementById('address').value,
+                    createdAt: new Date().toISOString()
+                });
+                
+                document.getElementById('successMessage').textContent = 'Registration successful!';
+                document.getElementById('successMessage').style.display = 'block';
+                document.getElementById('registrationForm').reset();
+                
+                setTimeout(() => {
+                    document.getElementById('successMessage').style.display = 'none';
+                }, 3000);
+                
+            } catch (error) {
+                document.getElementById('errorMessage').textContent = 'Error: ' + error.message;
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+            
+            btn.innerHTML = 'Submit Registration';
+            btn.disabled = false;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premier Student Portal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-box">
+            <div class="logo">
+                <div class="logo-icon">👑</div>
+                <h2>Premier Portal</h2>
+                <p>Exclusive Student Access</p>
+            </div>
+            
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="email" required placeholder="student@premier.edu">
+                </div>
+                
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                </div>
+                
+                <button type="submit" id="loginBtn" class="login-btn">Sign In</button>
+            </form>
+            
+            <div class="login-footer">
+                <p><a href="#" id="createAccount">Create Account →</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth } from './firebase-config.js';
+        import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('loginBtn');
+            
+            btn.innerHTML = 'Signing in...';
+            btn.disabled = true;
+            
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = 'menu.html';
+            } catch (error) {
+                document.getElementById('errorMessage').textContent = 
+                    error.message.includes('wrong-password') ? 'Invalid password' : 'Email not found';
+                document.getElementById('errorMessage').style.display = 'block';
+                btn.innerHTML = 'Sign In';
+                btn.disabled = false;
+            }
+        });
+
+        document.getElementById('createAccount').addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            const email = prompt('Enter email:');
+            if (!email) return;
+            
+            const password = prompt('Enter password (min 6 chars):');
+            if (!password || password.length < 6) {
+                alert('Password must be 6+ characters');
+                return;
+            }
+            
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                alert('Account created! Please login.');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
